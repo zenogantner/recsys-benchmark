@@ -1,0 +1,18 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+DATA_DIR=${1?"Usage: $0 DATA_DIR"}
+SEED=1
+
+# MyMediaLite experiments for the page http://recsyswiki.com/wiki/MovieLens_100k_benchmark_results
+for method in GlobalAverage UserAverage ItemAverage UserItemBaseline; do
+        sum=0
+	for i in 1 2 3 4 5; do
+	    rmse=`rating_prediction --recommender=$method --training-file=${DATA_DIR}/u${i}.base --test-file=${DATA_DIR}/u${i}.test | perl -pe 'if (m/ RMSE (\d+\.\d+)/) { $_="$1" } else { $_="" }'`
+	    sum=$(float_eval "$sum + $rmse")
+	    echo $sum
+	done
+	echo "| $method | $sum"
+done
